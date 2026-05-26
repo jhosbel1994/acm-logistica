@@ -155,6 +155,24 @@
     </div>
 
     <script src="../js/db.js"></script>
+    <script>
+    (function() {
+        const token = new URLSearchParams(window.location.search).get('token');
+        if (!token || !validateRegToken(token)) {
+            ['registroForm','google-btn-container'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            document.querySelectorAll('.flex.items-center.gap-3').forEach(el => el.style.display = 'none');
+            const msg = document.getElementById('msg-registro');
+            if (msg) {
+                msg.innerHTML = '<span class="material-symbols-outlined" style="font-size:36px;display:block;margin-bottom:10px;color:#6b7280;">link_off</span><strong>Link inválido o expirado</strong><br><span style="font-weight:400;color:#6b7280;">Solicita un nuevo link al administrador de ACM Logística.</span>';
+                msg.className = 'text-center text-sm mt-4 text-gray-700';
+                msg.classList.remove('hidden');
+            }
+        }
+    })();
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="../js/conductores.js"></script>
 </body>

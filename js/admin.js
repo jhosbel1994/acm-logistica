@@ -516,6 +516,24 @@ if (window.location.pathname.includes('dashboard.html')) {
         }).join('');
     };
 
+    // ── Copiar link de registro (válido 2 horas) ──────────────────────────
+    window.copiarLinkRegistro = function() {
+        const token  = generateRegToken();
+        const base   = window.location.origin + window.location.pathname.replace('admin/dashboard.html', '');
+        const url    = base + 'conductores/registro.html?token=' + token;
+        const btn    = document.getElementById('btn-copiar-link');
+        const orig   = btn ? btn.innerHTML : '';
+        navigator.clipboard.writeText(url).then(() => {
+            if (btn) {
+                btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">check_circle</span> ¡Copiado! Válido 2h';
+                btn.style.cssText += ';background:#e6f7f4;color:#1d8a76;border-color:#28A992;';
+                setTimeout(() => { btn.innerHTML = orig; btn.removeAttribute('style'); btn.style.cssText = 'border-color:#28A992;color:#28A992;'; }, 4000);
+            }
+        }).catch(() => {
+            prompt('Copia este link (válido 2 horas):', url);
+        });
+    };
+
     // ── Modal: agregar conductor ──────────────────────────────────────────
     window.abrirModalAgregar = function() {
         ['ag-nombre', 'ag-apellido', 'ag-rut', 'ag-email', 'ag-tel'].forEach(id => {
@@ -544,7 +562,7 @@ if (window.location.pathname.includes('dashboard.html')) {
         if (findConductorByEmail(email))                         { showErr('Este correo ya está registrado.'); return; }
         if (findConductorByRUT(rut))                             { showErr('Este RUT ya está registrado.'); return; }
 
-        const passwordHash = await hashPassword(rut.replace(/[^0-9]/g, '').replace(/.$/, ''));
+        const passwordHash = await hashPassword('2026-05');
         const conductor = { nombre, apellido, rut, email, telefono, passwordHash, fechaRegistro: new Date().toISOString(), creadoPorAdmin: true };
         const db = getConductores();
         db.push(conductor);

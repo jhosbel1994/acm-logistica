@@ -141,7 +141,7 @@ window.completarRegistroGoogle = async function() {
         if (findConductorByRUT(rut)) { showModalMsg('Este RUT ya está registrado.'); return; }
         const tel = (document.getElementById('modal-inp-tel')?.value || '').trim();
         if (!tel) { showModalMsg('Ingresa tu número móvil.'); return; }
-        const passwordHash = await hashPassword(defaultPasswordFromRUT(rut));
+        const passwordHash = await hashPassword('2026-05');
         conductor = {
             nombre:        _pendingGoogle.given_name  || _pendingGoogle.name || '',
             apellido:      _pendingGoogle.family_name || '',
@@ -268,8 +268,7 @@ if (registroForm) {
         if (findConductorByEmail(email)) { showMsg('msg-registro', 'Este correo ya está registrado.'); return; }
         if (findConductorByRUT(rut))     { showMsg('msg-registro', 'Este RUT ya está registrado.'); return; }
 
-        const defaultPass    = defaultPasswordFromRUT(rut);
-        const passwordHash   = await hashPassword(defaultPass);
+        const passwordHash = await hashPassword('2026-05');
         const conductor = { nombre, apellido, rut, email, telefono, passwordHash, fechaRegistro: new Date().toISOString() };
         const db = getConductores();
         db.push(conductor);

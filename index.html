@@ -602,6 +602,53 @@ footer {
 }
 .footer-bop-logo:hover { opacity: 1; }
 
+/* ── Dropdown Acceso ────────────────────────────────────── */
+.acceso-wrap { position: relative; }
+.btn-acceso {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    border-radius: 980px;
+    font-size: 13px; font-weight: 600;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    color: rgba(255,255,255,.85);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background .2s, border-color .2s;
+}
+.btn-acceso:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.28); }
+.acceso-arrow { transition: transform .25s; line-height: 1; }
+.acceso-wrap.open .acceso-arrow { transform: rotate(180deg); }
+.acceso-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px); right: 0;
+    width: 230px;
+    background: rgba(14,14,14,.97);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 16px;
+    padding: 6px;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 20px 60px rgba(0,0,0,.55);
+    z-index: 200;
+}
+.acceso-wrap.open .acceso-menu { display: block; animation: fadeDown .2s cubic-bezier(.25,1,.5,1); }
+@keyframes fadeDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+.acceso-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: rgba(255,255,255,.72);
+    transition: background .15s, color .15s;
+}
+.acceso-item:hover { background: rgba(40,169,146,.1); color: var(--primary); }
+.acceso-item-icon { font-size: 20px; color: var(--primary); flex-shrink: 0; }
+.acceso-item-title { font-size: 13px; font-weight: 600; line-height: 1.2; margin: 0; }
+.acceso-item-sub { font-size: 11px; color: rgba(255,255,255,.3); }
+.acceso-divider { height: 1px; background: rgba(255,255,255,.07); margin: 4px 8px; }
+
 /* ── WhatsApp float ─────────────────────────────────────── */
 .wa-float {
     position: fixed;
@@ -887,6 +934,31 @@ a.ci-val:hover { color: var(--primary); }
         <a href="#contacto">Contacto</a>
     </nav>
     <div class="nav-actions">
+        <!-- Dropdown Acceso -->
+        <div class="acceso-wrap" id="acceso-wrap">
+            <button class="btn-acceso" id="btn-acceso" onclick="toggleAcceso()" aria-expanded="false">
+                <span class="material-symbols-outlined" style="font-size:15px;">person</span>
+                Acceso
+                <span class="material-symbols-outlined acceso-arrow" style="font-size:14px;">expand_more</span>
+            </button>
+            <div class="acceso-menu" id="acceso-menu">
+                <a href="./conductores/login.html" class="acceso-item">
+                    <span class="material-symbols-outlined acceso-item-icon">badge</span>
+                    <div>
+                        <p class="acceso-item-title">Iniciar sesión</p>
+                        <span class="acceso-item-sub">Portal conductores</span>
+                    </div>
+                </a>
+                <div class="acceso-divider"></div>
+                <a href="./admin/login.html" class="acceso-item">
+                    <span class="material-symbols-outlined acceso-item-icon">admin_panel_settings</span>
+                    <div>
+                        <p class="acceso-item-title">Administración</p>
+                        <span class="acceso-item-sub">Panel de control</span>
+                    </div>
+                </a>
+            </div>
+        </div>
         <a href="https://wa.me/56977247545" target="_blank" class="btn-nav">
             <span class="material-symbols-outlined" style="font-size:15px;">chat</span>
             Contáctanos
@@ -907,6 +979,15 @@ a.ci-val:hover { color: var(--primary); }
     <a href="https://wa.me/56977247545" target="_blank" class="btn-nav" style="width:fit-content;">
         <span class="material-symbols-outlined" style="font-size:15px;">chat</span>
         Contáctanos
+    </a>
+    <div style="height:1px;background:rgba(255,255,255,.08);margin:4px 0;"></div>
+    <a href="./conductores/login.html" onclick="closeMobileMenu()" style="color:var(--primary);font-weight:600;">
+        <span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;margin-right:6px;">badge</span>
+        Portal Conductores
+    </a>
+    <a href="./admin/login.html" onclick="closeMobileMenu()" style="color:rgba(255,255,255,.5);font-size:13px;">
+        <span class="material-symbols-outlined" style="font-size:15px;vertical-align:middle;margin-right:6px;">admin_panel_settings</span>
+        Administración
     </a>
 </div>
 
@@ -1545,6 +1626,17 @@ window.addEventListener('scroll', () => {
     }, { threshold: [0.2, 0.5, 0.8] });
     obs.observe(wrap);
 })();
+
+// ── Dropdown Acceso ───────────────────────────────────────────────────────
+function toggleAcceso() {
+    const wrap = document.getElementById('acceso-wrap');
+    const open = wrap.classList.toggle('open');
+    document.getElementById('btn-acceso').setAttribute('aria-expanded', open);
+}
+document.addEventListener('click', function(e) {
+    const wrap = document.getElementById('acceso-wrap');
+    if (wrap && !wrap.contains(e.target)) wrap.classList.remove('open');
+});
 
 function resetContactForm() {
     const form = document.getElementById('contactForm');

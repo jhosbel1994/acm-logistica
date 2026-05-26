@@ -124,3 +124,23 @@ function clearAttempts(id) {
     delete map[id];
     sessionStorage.setItem(RATE_KEY, JSON.stringify(map));
 }
+
+// ── Token de registro con expiración de 2 horas ───────────────────────────
+
+function generateRegToken() {
+    const ts   = Date.now();
+    const rand = Array.from(crypto.getRandomValues(new Uint8Array(8)))
+        .map(b => b.toString(16).padStart(2, '0')).join('');
+    return btoa(ts + '|' + rand).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+function validateRegToken(token) {
+    try {
+        const b64     = token.replace(/-/g, '+').replace(/_/g, '/');
+        const pad     = b64 + '=='.slice(0, (4 - b64.length % 4) % 4);
+        const decoded = atob(pad);
+        const ts      = parseInt(decoded.split('|')[0]);
+        if (isNaN(ts)) return false;
+        return (Date.now() - ts) < 2 * 60 * 60 * 1000;
+    } catch { return false; }
+}

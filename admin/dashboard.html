@@ -197,6 +197,12 @@
                     <span class="material-symbols-outlined" style="font-size:16px;">download</span>
                     CSV
                 </button>
+                <button onclick="copiarLinkRegistro()" id="btn-copiar-link"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap border transition-all"
+                        style="border-color:#28A992;color:#28A992;">
+                    <span class="material-symbols-outlined" style="font-size:16px;">link</span>
+                    Link registro
+                </button>
                 <button onclick="abrirModalAgregar()"
                         class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white whitespace-nowrap hover:opacity-90 transition-opacity"
                         style="background:#28A992;">
@@ -388,8 +394,8 @@
         </div>
 
         <p class="text-xs text-gray-500 mb-4">
-            Se enviará un correo de bienvenida al conductor con sus datos de acceso.<br>
-            La contraseña será los primeros 4 dígitos de su RUT.
+            El conductor podrá ingresar con su correo o RUT.<br>
+            Contraseña inicial: <strong class="text-gray-700">2026-05</strong>
         </p>
 
         <div class="space-y-3">
