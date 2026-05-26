@@ -511,7 +511,7 @@ header.scrolled {
 }
 .mic-icon span { font-size: 17px; color: var(--primary); }
 .mic-title { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 3px; }
-.mic-val { font-size: 12.5px; color: rgba(255,255,255,.72); text-decoration: none; line-height: 1.4; }
+.mic-val { font-size: 12.5px; color: rgba(255,255,255,.72); text-decoration: none; line-height: 1.4; word-break: break-word; }
 a.mic-val:hover { color: var(--primary); }
 
 /* ── Imagen en tarjetas de flota ─────────────────────────── */
@@ -817,7 +817,8 @@ a.ci-val:hover { color: var(--primary); }
     .footer-brand { grid-column: 1 / -1; }
     .footer-bottom { flex-direction: column; gap: 6px; text-align: center; }
     .fleet-grid { grid-template-columns: 1fr 1fr; }
-    .map-strip  { grid-template-columns: repeat(3, 1fr); }
+    .map-strip  { grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 28px 20px 36px; }
+    .mic { padding: 14px 12px; }
     .map-section { padding: 32px 16px 0; }
     .map-iframe-wrap { height: 220px; border-radius: 20px; }
     .map-iframe-wrap:hover { height: 220px; }
@@ -832,12 +833,31 @@ a.ci-val:hover { color: var(--primary); }
     .why-grid { grid-template-columns: 1fr 1fr; }
     .section-inner { padding: 72px 20px; }
     .fleet-grid { grid-template-columns: 1fr; }
-    .map-strip  { grid-template-columns: 1fr 1fr; padding: 28px 16px 36px; }
     .map-section { padding: 24px 12px 0; }
     .map-iframe-wrap { height: 180px; border-radius: 16px; }
     .map-iframe-wrap:hover { height: 180px; }
     .map-iframe-wrap.map-expanded { height: 320px; }
     .map-iframe-wrap iframe { height: 320px; }
+
+    /* Cards de cobertura: scroll horizontal tipo carrusel */
+    .map-strip {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        gap: 10px;
+        padding: 20px 16px 28px;
+        scrollbar-width: none;
+        border-top: none;
+    }
+    .map-strip::-webkit-scrollbar { display: none; }
+    .mic {
+        min-width: 158px;
+        max-width: 158px;
+        flex-shrink: 0;
+        scroll-snap-align: start;
+    }
 }
 </style>
 </head>
