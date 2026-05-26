@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Administrativo - ACM Logística</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-slate-800 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Botón volver -->
+    <a href="../index.html" class="fixed top-5 left-5 flex items-center gap-2 bg-white shadow-md px-4 py-2 rounded-full text-sm font-medium hover:shadow-lg transition-shadow" style="color:#28A992;z-index:50;">
+        <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span>
+        Volver
+    </a>
+
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <div class="flex justify-center mb-8">
+                <a href="../index.html">
+                    <img src="../assets/Recurso 23Isologo.svg" alt="ACM Logística" style="height:60px;width:auto;">
+                </a>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-center mb-2" style="color: #0C0B0C;">Acceso Administrativo</h2>
+            <p class="text-center text-red-600 text-sm mb-6 font-semibold">Solo correos corporativos @serviciosbop.cl</p>
+            
+            <form id="adminLoginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #0C0B0C;">Correo Administrativo *</label>
+                    <input id="admin-inp-email" type="email" placeholder="admin@serviciosbop.cl" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="--tw-ring-color: #28A992;">
+                    <p class="text-xs text-gray-500 mt-1">Debe ser un correo @serviciosbop.cl</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-2" style="color: #0C0B0C;">Contraseña *</label>
+                    <input id="admin-inp-pass" type="password" placeholder="••••••" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="--tw-ring-color: #28A992;">
+                </div>
+                
+                <button type="submit" class="w-full py-3 rounded-lg font-bold text-white transition-opacity hover:opacity-90" style="background-color: #0C0B0C;">
+                    Ingresar al Dashboard
+                </button>
+            </form>
+
+            <div class="text-center mt-4">
+                <a href="#" id="btnRecuperarPass" class="text-sm font-medium hover:underline" style="color:#28A992;">
+                    ¿Olvidaste tu contraseña?
+                </a>
+            </div>
+
+            <!-- Modal recuperar contraseña -->
+            <div id="modalRecuperar" class="hidden mt-4 p-4 rounded-lg border border-gray-200 bg-gray-50">
+                <p class="text-sm font-semibold mb-2" style="color:#0C0B0C;">Recuperar contraseña</p>
+                <p class="text-xs text-gray-500 mb-3">Ingresa tu correo corporativo y te enviaremos instrucciones.</p>
+                <input type="email" id="emailRecuperar" placeholder="admin@serviciosbop.cl" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 mb-3" style="--tw-ring-color:#28A992;">
+                <button onclick="enviarRecuperacion()" class="w-full py-2 rounded-lg text-white text-sm font-bold hover:opacity-90 transition-opacity" style="background-color:#28A992;">
+                    Enviar instrucciones
+                </button>
+                <p id="msgRecuperar" class="text-xs text-center mt-2 text-gray-500 hidden">Si el correo existe, recibirás un mensaje en breve.</p>
+            </div>
+
+            <script>
+            document.getElementById('btnRecuperarPass').addEventListener('click', function(e){
+                e.preventDefault();
+                document.getElementById('modalRecuperar').classList.toggle('hidden');
+            });
+            function enviarRecuperacion(){
+                const email = document.getElementById('emailRecuperar').value;
+                if(email){
+                    document.getElementById('msgRecuperar').classList.remove('hidden');
+                }
+            }
+            </script>
+            
+            <div class="mt-6 p-4 rounded-lg" style="background-color: #FFF3E0;">
+                <p class="text-sm text-gray-700">
+                    <span class="material-symbols-outlined text-sm align-text-bottom">info</span>
+                    Acceso restringido. Contacta a tu supervisor si tienes problemas.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/db.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>

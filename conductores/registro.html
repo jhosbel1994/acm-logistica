@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - ACM Logística</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Botón volver -->
+    <a href="../index.html" class="fixed top-5 left-5 flex items-center gap-2 bg-white shadow-md px-4 py-2 rounded-full text-sm font-medium hover:shadow-lg transition-shadow" style="color:#28A992;z-index:50;">
+        <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span>
+        Volver
+    </a>
+
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+
+            <!-- Logo -->
+            <div class="flex justify-center mb-6">
+                <a href="../index.html">
+                    <img src="../assets/Recurso 23Isologo.svg" alt="ACM Logística" style="height:60px;width:auto;">
+                </a>
+            </div>
+
+            <h2 class="text-2xl font-bold text-center mb-1" style="color:#0C0B0C;">Registro de Conductor</h2>
+            <p class="text-center text-gray-500 text-sm mb-6">Completa tus datos para acceder al sistema</p>
+
+            <!-- Botón Google -->
+            <div id="google-btn-container" class="w-full flex justify-center mb-4 min-h-[44px]"></div>
+
+            <!-- Mensaje error Google -->
+            <p id="msg-login" class="hidden text-sm text-center mb-3 font-medium text-red-600"></p>
+
+            <!-- Divider -->
+            <div class="flex items-center gap-3 mb-5">
+                <div class="flex-1 h-px bg-gray-200"></div>
+                <span class="text-xs text-gray-400 font-medium whitespace-nowrap">o regístrate con tus datos</span>
+                <div class="flex-1 h-px bg-gray-200"></div>
+            </div>
+
+            <form id="registroForm" class="space-y-4">
+
+                <!-- Nombre y Apellido -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium mb-1.5" style="color:#0C0B0C;">Nombre *</label>
+                        <input id="inp-nombre" type="text" placeholder="Juan" required
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 text-sm"
+                               style="--tw-ring-color:#28A992;">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1.5" style="color:#0C0B0C;">Apellido *</label>
+                        <input id="inp-apellido" type="text" placeholder="Pérez" required
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 text-sm"
+                               style="--tw-ring-color:#28A992;">
+                    </div>
+                </div>
+
+                <!-- RUT -->
+                <div>
+                    <label class="block text-sm font-medium mb-1.5" style="color:#0C0B0C;">RUT *</label>
+                    <input id="inp-rut" type="text" placeholder="12345678-9" required maxlength="10"
+                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 text-sm"
+                           style="--tw-ring-color:#28A992;">
+                    <p class="text-xs text-gray-400 mt-1">Sin puntos, con guión · Tu contraseña serán los primeros 4 dígitos</p>
+                </div>
+
+                <!-- Correo -->
+                <div>
+                    <label class="block text-sm font-medium mb-1.5" style="color:#0C0B0C;">Correo Electrónico *</label>
+                    <input id="inp-email" type="email" placeholder="tu@correo.com" required
+                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 text-sm"
+                           style="--tw-ring-color:#28A992;">
+                </div>
+
+                <!-- Teléfono -->
+                <div>
+                    <label class="block text-sm font-medium mb-1.5" style="color:#0C0B0C;">Número Móvil *</label>
+                    <input id="inp-tel" type="tel" placeholder="+56 9 xxxx xxxx" required
+                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 text-sm"
+                           style="--tw-ring-color:#28A992;">
+                </div>
+
+                <button type="submit"
+                        class="w-full py-3 rounded-lg font-bold text-white transition-opacity hover:opacity-90"
+                        style="background-color:#28A992;">
+                    Registrarse
+                </button>
+            </form>
+
+            <!-- Mensaje de estado -->
+            <p id="msg-registro" class="hidden text-sm text-center mt-3 font-medium"></p>
+
+            <p class="text-center text-gray-500 text-sm mt-6">
+                ¿Ya tienes cuenta?
+                <a href="./login.html" class="font-bold" style="color:#28A992;">Inicia sesión aquí</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- ── Modal: completar RUT al registrarse con Google ──────────────────── -->
+    <div id="modal-rut" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+         style="background:rgba(0,0,0,0.55);">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+
+            <div class="flex flex-col items-center gap-2 mb-5">
+                <img id="modal-google-avatar" src="" alt=""
+                     class="hidden w-16 h-16 rounded-full border-2 border-gray-100 shadow-sm object-cover">
+                <div class="text-center">
+                    <p class="font-bold text-base" style="color:#0C0B0C;" id="modal-google-name"></p>
+                    <p class="text-xs text-gray-400 mt-0.5" id="modal-google-email"></p>
+                </div>
+            </div>
+
+            <h3 class="text-center font-bold text-sm mb-1" style="color:#0C0B0C;">Completa tu registro</h3>
+            <p class="text-xs text-gray-500 text-center mb-4">
+                Ingresa los datos que faltan para crear tu ficha de conductor.
+            </p>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">RUT *</label>
+                    <input id="modal-inp-rut" type="text" placeholder="12345678-9" maxlength="10"
+                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2"
+                           style="--tw-ring-color:#28A992;"
+                           onkeydown="if(event.key==='Enter') completarRegistroGoogle()">
+                    <p class="text-xs text-gray-400 mt-0.5">Sin puntos, con guión · ej: 12345678-9</p>
+                </div>
+                <div id="modal-tel-row">
+                    <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Número Móvil *</label>
+                    <input id="modal-inp-tel" type="tel" placeholder="+56 9 xxxx xxxx"
+                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2"
+                           style="--tw-ring-color:#28A992;">
+                </div>
+            </div>
+
+            <p id="msg-modal-rut" class="hidden text-xs text-center mt-2 font-medium"></p>
+
+            <button onclick="completarRegistroGoogle()"
+                    class="w-full mt-4 py-2.5 rounded-lg font-bold text-white text-sm hover:opacity-90 transition-opacity"
+                    style="background-color:#28A992;">
+                Completar Registro
+            </button>
+            <button onclick="cerrarModalRUT()"
+                    class="w-full mt-2 py-2 rounded-lg text-gray-500 text-sm font-medium hover:bg-gray-50 transition-colors border border-gray-200">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <script src="../js/db.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="../js/conductores.js"></script>
+</body>
+</html>

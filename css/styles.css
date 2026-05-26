@@ -1,0 +1,160 @@
+/* Estilos compartidos ACM Logística */
+
+:root {
+    --primary: #28A992;
+    --secondary: #0C0B0C;
+    --tertiary: #ce8900;
+    --gray: #A09793;
+    --white: #FFFFFF;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--secondary);
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+}
+
+/* Botones */
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--secondary);
+    color: var(--white);
+}
+
+.btn-secondary:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/* Inputs */
+input, textarea, select {
+    padding: 12px;
+    border: 1px solid #E0E0E0;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(40, 169, 146, 0.1);
+}
+
+/* Cards */
+.card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+.card-header {
+    border-top: 4px solid var(--primary);
+}
+
+/* Acordeones */
+.accordion-header {
+    background: linear-gradient(135deg, var(--primary) 0%, #206b5b 100%);
+    color: var(--white);
+    padding: 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.accordion-header:hover {
+    opacity: 0.9;
+}
+
+.accordion-content {
+    padding: 16px;
+    border: 1px solid #E0E0E0;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+}
+
+/* Notificaciones */
+.alert {
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.alert-info {
+    background-color: #E3F2FD;
+    color: #1976D2;
+    border-left: 4px solid #1976D2;
+}
+
+.alert-success {
+    background-color: #E8F5E9;
+    color: #388E3C;
+    border-left: 4px solid #388E3C;
+}
+
+.alert-error {
+    background-color: #FFEBEE;
+    color: #C62828;
+    border-left: 4px solid #C62828;
+}
+
+.alert-warning {
+    background-color: #FFF3E0;
+    color: #F57C00;
+    border-left: 4px solid #F57C00;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .btn {
+        width: 100%;
+        padding: 14px;
+    }
+    
+    .card {
+        padding: 16px;
+    }
+}

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ACM Logística</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
+        body { font-family:'Inter',sans-serif; }
+        .font-brand { font-family:'Space Grotesk',sans-serif; }
+        .tab-btn.active  { background:#28A992; color:#fff; }
+        .periodo-btn.active { background:#28A992; color:#fff; border-color:#28A992; }
+        .tab-btn { transition:background .15s,color .15s; }
+        th { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#6b7280; }
+        td { font-size:13px; vertical-align:middle; }
+        tbody tr:hover td { background:#f9fafb; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- ── Top bar ──────────────────────────────────────────────────────────── -->
+<header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <img src="../assets/Recurso 23Isologo.svg" alt="ACM" style="height:38px;width:auto;">
+            <span class="font-brand font-bold text-xs tracking-widest text-gray-400 hidden sm:block">PANEL ADMINISTRATIVO</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <!-- Chip de usuario activo -->
+            <div id="admin-chip" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:#28A992;" id="admin-avatar">?</div>
+                <div class="leading-tight">
+                    <p class="text-xs font-semibold text-gray-700" id="admin-nombre-label">—</p>
+                    <p class="text-xs text-gray-400" id="admin-rol-label">—</p>
+                </div>
+            </div>
+            <!-- Cambiar mi contraseña (solo Dueño) -->
+            <button id="btn-mi-pass" onclick="abrirModalMiPass()" title="Cambiar mi contraseña"
+                    class="hidden items-center gap-1 text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:border-emerald-400 hover:text-emerald-700 transition-colors">
+                <span class="material-symbols-outlined" style="font-size:14px;">lock_reset</span>
+                Mi contraseña
+            </button>
+            <!-- Demo -->
+            <button onclick="cargarDatosDemo()" title="Cargar datos de demostración"
+                    class="hidden sm:flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg border border-dashed border-gray-300 text-gray-400 hover:border-emerald-400 hover:text-emerald-600 transition-colors">
+                <span class="material-symbols-outlined" style="font-size:14px;">science</span>
+                Demo
+            </button>
+            <button onclick="adminLogout()"
+                    class="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-red-600 transition-colors">
+                <span class="material-symbols-outlined" style="font-size:18px;">logout</span>
+                Salir
+            </button>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+
+    <!-- ── Tarjetas de estadísticas ──────────────────────────────────────── -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div class="flex items-start justify-between mb-3">
+                <span class="material-symbols-outlined text-2xl" style="color:#28A992;font-variation-settings:'FILL' 1;">group</span>
+                <span class="text-xs bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">Total</span>
+            </div>
+            <p class="text-3xl font-bold text-gray-800" id="stat-conductores">0</p>
+            <p class="text-xs text-gray-500 mt-1">Conductores registrados</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div class="flex items-start justify-between mb-3">
+                <span class="material-symbols-outlined text-2xl" style="color:#28A992;font-variation-settings:'FILL' 1;">description</span>
+                <span class="text-xs bg-blue-50 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Total</span>
+            </div>
+            <p class="text-3xl font-bold text-gray-800" id="stat-formularios">0</p>
+            <p class="text-xs text-gray-500 mt-1">Formularios enviados</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div class="flex items-start justify-between mb-3">
+                <span class="material-symbols-outlined text-2xl" style="color:#28A992;font-variation-settings:'FILL' 1;">today</span>
+                <span class="text-xs bg-violet-50 text-violet-700 font-semibold px-2 py-0.5 rounded-full">Hoy</span>
+            </div>
+            <p class="text-3xl font-bold text-gray-800" id="stat-hoy">0</p>
+            <p class="text-xs text-gray-500 mt-1">Formularios de hoy</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div class="flex items-start justify-between mb-3">
+                <span class="material-symbols-outlined text-2xl" style="color:#28A992;font-variation-settings:'FILL' 1;">trending_up</span>
+                <span class="text-xs bg-amber-50 text-amber-700 font-semibold px-2 py-0.5 rounded-full">Promedio</span>
+            </div>
+            <p class="text-3xl font-bold text-gray-800" id="stat-puntaje">—</p>
+            <p class="text-xs text-gray-500 mt-1">Puntaje promedio</p>
+        </div>
+    </div>
+
+    <!-- ── Salidas / Ingresos del día ─────────────────────────────────────── -->
+    <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="background:#dcfce7;">
+                <span class="material-symbols-outlined" style="color:#166534;font-size:22px;font-variation-settings:'FILL' 1;">arrow_upward</span>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-gray-800" id="stat-salidas">0</p>
+                <p class="text-xs text-gray-500">Salidas hoy</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="background:#dbeafe;">
+                <span class="material-symbols-outlined" style="color:#1e40af;font-size:22px;font-variation-settings:'FILL' 1;">arrow_downward</span>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-gray-800" id="stat-ingresos">0</p>
+                <p class="text-xs text-gray-500">Ingresos hoy</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Gráficos ──────────────────────────────────────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        <!-- Actividad semanal (ocupa 2 columnas) -->
+        <div class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <p class="font-semibold text-gray-800 text-sm">Actividad últimos 7 días</p>
+                    <p class="text-xs text-gray-400 mt-0.5">Formularios enviados por día</p>
+                </div>
+                <span class="material-symbols-outlined text-gray-300" style="font-size:20px;">bar_chart</span>
+            </div>
+            <div style="height:200px;">
+                <canvas id="chart-semana"></canvas>
+            </div>
+        </div>
+
+        <!-- SALIDA vs INGRESO (dona) -->
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <p class="font-semibold text-gray-800 text-sm">Tipo de control</p>
+                    <p class="text-xs text-gray-400 mt-0.5">SALIDA vs INGRESO (total)</p>
+                </div>
+                <span class="material-symbols-outlined text-gray-300" style="font-size:20px;">donut_large</span>
+            </div>
+            <div style="height:160px;" class="flex items-center justify-center">
+                <canvas id="chart-tipo"></canvas>
+            </div>
+            <div class="flex justify-center gap-4 mt-3">
+                <div class="flex items-center gap-1.5">
+                    <div class="w-3 h-3 rounded-full" style="background:#28A992;"></div>
+                    <span class="text-xs text-gray-500">Salida</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <div class="w-3 h-3 rounded-full" style="background:#3b82f6;"></div>
+                    <span class="text-xs text-gray-500">Ingreso</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Tabs ──────────────────────────────────────────────────────────── -->
+    <div class="flex gap-2">
+        <button id="tab-btn-conductores" class="tab-btn active px-5 py-2.5 rounded-lg text-sm font-semibold"
+                onclick="switchTab('conductores')">
+            <span class="material-symbols-outlined align-text-bottom mr-1" style="font-size:16px;">group</span>
+            Conductores
+        </button>
+        <button id="tab-btn-formularios" class="tab-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-gray-500 hover:bg-gray-100"
+                onclick="switchTab('formularios')">
+            <span class="material-symbols-outlined align-text-bottom mr-1" style="font-size:16px;">description</span>
+            Formularios
+        </button>
+        <!-- Solo visible para el Dueño -->
+        <button id="tab-btn-admins" class="hidden tab-btn px-5 py-2.5 rounded-lg text-sm font-semibold text-gray-500 hover:bg-gray-100"
+                onclick="switchTab('admins')">
+            <span class="material-symbols-outlined align-text-bottom mr-1" style="font-size:16px;">admin_panel_settings</span>
+            Administradores
+        </button>
+    </div>
+
+    <!-- ── Panel: Conductores ─────────────────────────────────────────────── -->
+    <div id="panel-conductores">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <div class="relative flex-1">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" style="font-size:18px;">search</span>
+                    <input id="filtro-conductor" type="text" placeholder="Buscar por nombre, RUT o correo…"
+                           oninput="renderConductores()"
+                           class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                </div>
+                <span class="text-xs text-gray-400 whitespace-nowrap" id="cnt-conductores"></span>
+                <button onclick="exportarCSV('conductores')"
+                        class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+                    <span class="material-symbols-outlined" style="font-size:16px;">download</span>
+                    CSV
+                </button>
+                <button onclick="abrirModalAgregar()"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white whitespace-nowrap hover:opacity-90 transition-opacity"
+                        style="background:#28A992;">
+                    <span class="material-symbols-outlined" style="font-size:16px;">person_add</span>
+                    Agregar conductor
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="px-5 py-3 text-left">Nombre</th>
+                            <th class="px-5 py-3 text-left">RUT</th>
+                            <th class="px-5 py-3 text-left hidden md:table-cell">Correo</th>
+                            <th class="px-5 py-3 text-left hidden sm:table-cell">Teléfono</th>
+                            <th class="px-5 py-3 text-left hidden lg:table-cell">Registro</th>
+                            <th class="px-5 py-3 text-center hidden lg:table-cell">Formularios</th>
+                            <th class="px-5 py-3 text-center">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-conductores" class="divide-y divide-gray-50"></tbody>
+                </table>
+                <p id="empty-conductores" class="hidden text-center py-10 text-sm text-gray-400">
+                    No se encontraron conductores.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Panel: Formularios ─────────────────────────────────────────────── -->
+    <div id="panel-formularios" class="hidden">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <!-- Filtros -->
+            <div class="px-5 py-4 border-b border-gray-100">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+                    <input id="f-patente"   type="text" placeholder="Patente"        oninput="renderFormularios()"
+                           class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                    <input id="f-conductor" type="text" placeholder="Conductor"      oninput="renderFormularios()"
+                           class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                    <input id="f-email"     type="text" placeholder="Correo"         oninput="renderFormularios()"
+                           class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                    <input id="f-uid"       type="text" placeholder="N° PDF  ACM-…"  oninput="renderFormularios()"
+                           class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                </div>
+                <!-- Filtros rápidos de período -->
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="text-xs text-gray-400 font-medium">Período:</span>
+                    <button id="btn-periodo-hoy"    onclick="setPeriodo('hoy')"
+                            class="periodo-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-200 text-gray-600 hover:border-emerald-400 hover:text-emerald-700 transition-colors">
+                        Hoy
+                    </button>
+                    <button id="btn-periodo-semana" onclick="setPeriodo('semana')"
+                            class="periodo-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-200 text-gray-600 hover:border-emerald-400 hover:text-emerald-700 transition-colors">
+                        Esta semana
+                    </button>
+                    <button id="btn-periodo-mes"    onclick="setPeriodo('mes')"
+                            class="periodo-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-200 text-gray-600 hover:border-emerald-400 hover:text-emerald-700 transition-colors">
+                        Este mes
+                    </button>
+                    <button id="btn-periodo-todo"   onclick="setPeriodo('todo')"
+                            class="periodo-btn px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-200 text-gray-600 hover:border-emerald-400 hover:text-emerald-700 transition-colors">
+                        Todo
+                    </button>
+                    <div class="flex-1"></div>
+                    <!-- Fechas manuales -->
+                    <label class="text-xs text-gray-400">Desde</label>
+                    <input id="f-desde" type="date" oninput="setPeriodo(null);renderFormularios()"
+                           class="px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                    <label class="text-xs text-gray-400">Hasta</label>
+                    <input id="f-hasta" type="date" oninput="setPeriodo(null);renderFormularios()"
+                           class="px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                </div>
+
+                <div class="flex flex-wrap gap-3 items-center">
+                    <select id="f-tipo" onchange="renderFormularios()"
+                            class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                        <option value="">Todos los tipos</option>
+                        <option value="SALIDA">SALIDA</option>
+                        <option value="INGRESO">INGRESO</option>
+                    </select>
+                    <button onclick="limpiarFiltros()"
+                            class="text-xs text-red-400 hover:text-red-600 transition-colors font-medium">
+                        Limpiar filtros
+                    </button>
+                    <span class="text-xs text-gray-400 ml-auto" id="cnt-formularios"></span>
+                    <button onclick="exportarCSV('formularios')"
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+                        <span class="material-symbols-outlined" style="font-size:15px;">download</span>
+                        <span id="export-label">Exportar CSV</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Tabla -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 text-left">N° PDF</th>
+                            <th class="px-4 py-3 text-left">Fecha</th>
+                            <th class="px-4 py-3 text-left hidden sm:table-cell">Hora</th>
+                            <th class="px-4 py-3 text-left">Conductor</th>
+                            <th class="px-4 py-3 text-left hidden md:table-cell">RUT</th>
+                            <th class="px-4 py-3 text-left">Patente</th>
+                            <th class="px-4 py-3 text-center">Tipo</th>
+                            <th class="px-4 py-3 text-left hidden sm:table-cell">KM</th>
+                            <th class="px-4 py-3 text-center">Puntaje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-formularios" class="divide-y divide-gray-50"></tbody>
+                </table>
+                <p id="empty-formularios" class="hidden text-center py-10 text-sm text-gray-400">
+                    No se encontraron formularios con esos filtros.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Panel: Administradores (solo Dueño) ──────────────────────────── -->
+    <div id="panel-admins" class="hidden">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between gap-3">
+                <div>
+                    <p class="font-semibold text-gray-800 text-sm">Administradores del sistema</p>
+                    <p class="text-xs text-gray-400 mt-0.5">Solo el Dueño puede gestionar estos accesos</p>
+                </div>
+                <button onclick="abrirModalAgregarAdmin()"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+                        style="background:#28A992;">
+                    <span class="material-symbols-outlined" style="font-size:16px;">add</span>
+                    Agregar admin
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="px-5 py-3 text-left">Nombre</th>
+                            <th class="px-5 py-3 text-left">Correo</th>
+                            <th class="px-5 py-3 text-center">Rol</th>
+                            <th class="px-5 py-3 text-left hidden md:table-cell">Creado</th>
+                            <th class="px-5 py-3 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-admins" class="divide-y divide-gray-50"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- ── Modal confirmar eliminar ───────────────────────────────────────────── -->
+<div id="modal-eliminar" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     style="background:rgba(0,0,0,0.5);">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+        <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-red-600" style="font-size:28px;font-variation-settings:'FILL' 1;">person_remove</span>
+        </div>
+        <h3 class="font-bold text-gray-800 text-base mb-1">¿Eliminar conductor?</h3>
+        <p class="text-sm text-gray-500 mb-1">Esta acción no se puede deshacer.</p>
+        <p class="text-sm font-semibold text-gray-700 mb-5" id="modal-nombre-conductor"></p>
+        <div class="flex gap-3">
+            <button onclick="cerrarModalEliminar()"
+                    class="flex-1 py-2.5 border border-gray-200 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                Cancelar
+            </button>
+            <button onclick="confirmarEliminar()"
+                    class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700">
+                Sí, eliminar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Modal: agregar conductor manualmente ───────────────────────────────── -->
+<div id="modal-agregar" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     style="background:rgba(0,0,0,0.5);">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+        <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background:#e6f7f4;">
+                    <span class="material-symbols-outlined" style="color:#28A992;font-size:20px;font-variation-settings:'FILL' 1;">person_add</span>
+                </div>
+                <h3 class="font-bold text-gray-800 text-base">Agregar Conductor</h3>
+            </div>
+            <button onclick="cerrarModalAgregar()" class="text-gray-400 hover:text-gray-600">
+                <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+            </button>
+        </div>
+
+        <p class="text-xs text-gray-500 mb-4">
+            Se enviará un correo de bienvenida al conductor con sus datos de acceso.<br>
+            La contraseña será los primeros 4 dígitos de su RUT.
+        </p>
+
+        <div class="space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Nombre *</label>
+                    <input id="ag-nombre" type="text" placeholder="Juan"
+                           class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Apellido *</label>
+                    <input id="ag-apellido" type="text" placeholder="Pérez"
+                           class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">RUT *</label>
+                <input id="ag-rut" type="text" placeholder="12345678-9" maxlength="10"
+                       class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                <p class="text-xs text-gray-400 mt-0.5">Sin puntos, con guión · ej: 12345678-9</p>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Correo Electrónico *</label>
+                <input id="ag-email" type="email" placeholder="conductor@correo.com"
+                       class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                <p class="text-xs text-gray-400 mt-0.5">Se enviará el correo de bienvenida a esta dirección</p>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Teléfono *</label>
+                <input id="ag-tel" type="tel" placeholder="+56 9 xxxx xxxx"
+                       class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+            </div>
+        </div>
+
+        <p id="msg-agregar" class="hidden text-xs text-center mt-3 font-medium text-red-600"></p>
+
+        <div class="flex gap-3 mt-5">
+            <button onclick="cerrarModalAgregar()"
+                    class="flex-1 py-2.5 border border-gray-200 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                Cancelar
+            </button>
+            <button onclick="guardarNuevoConductor()"
+                    class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+                    style="background:#28A992;">
+                Agregar y enviar correo
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Modal: agregar administrador ──────────────────────────────────────── -->
+<div id="modal-agregar-admin" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     style="background:rgba(0,0,0,0.5);">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background:#e6f7f4;">
+                    <span class="material-symbols-outlined" style="color:#28A992;font-size:20px;font-variation-settings:'FILL' 1;">admin_panel_settings</span>
+                </div>
+                <h3 class="font-bold text-gray-800">Nuevo Administrador</h3>
+            </div>
+            <button onclick="cerrarModalAgregarAdmin()" class="text-gray-400 hover:text-gray-600">
+                <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+            </button>
+        </div>
+        <div class="space-y-3">
+            <div>
+                <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Nombre *</label>
+                <input id="na-nombre" type="text" placeholder="Nombre completo"
+                       class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Correo corporativo *</label>
+                <input id="na-email" type="email" placeholder="nombre@serviciosbop.cl"
+                       class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                <p class="text-xs text-gray-400 mt-0.5">Debe ser @serviciosbop.cl</p>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Contraseña inicial *</label>
+                <input id="na-pass" type="password" placeholder="Mínimo 6 caracteres"
+                       class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Rol</label>
+                <select id="na-rol" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                    <option value="encargado">Encargado</option>
+                </select>
+                <p class="text-xs text-gray-400 mt-0.5">Solo puede haber un Dueño en el sistema</p>
+            </div>
+        </div>
+        <p id="msg-agregar-admin" class="hidden text-xs text-center mt-3 font-medium text-red-600"></p>
+        <div class="flex gap-3 mt-5">
+            <button onclick="cerrarModalAgregarAdmin()"
+                    class="flex-1 py-2.5 border border-gray-200 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50">Cancelar</button>
+            <button onclick="guardarNuevoAdmin()"
+                    class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white hover:opacity-90"
+                    style="background:#28A992;">Agregar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Modal: cambiar mi contraseña ──────────────────────────────────────── -->
+<div id="modal-mi-pass" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     style="background:rgba(0,0,0,0.5);">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-gray-800">Cambiar mi contraseña</h3>
+            <button onclick="cerrarModalMiPass()" class="text-gray-400 hover:text-gray-600">
+                <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+            </button>
+        </div>
+        <div class="space-y-3">
+            <div>
+                <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Contraseña actual *</label>
+                <input id="mp-actual" type="password" placeholder="Tu contraseña actual"
+                       class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Nueva contraseña *</label>
+                <input id="mp-nueva" type="password" placeholder="Mínimo 6 caracteres"
+                       class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Confirmar nueva contraseña *</label>
+                <input id="mp-confirmar" type="password" placeholder="Repite la nueva contraseña"
+                       class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+            </div>
+        </div>
+        <p id="msg-mi-pass" class="hidden text-xs text-center mt-3 font-medium"></p>
+        <div class="flex gap-3 mt-5">
+            <button onclick="cerrarModalMiPass()"
+                    class="flex-1 py-2.5 border border-gray-200 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50">Cancelar</button>
+            <button onclick="guardarMiPass()"
+                    class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white hover:opacity-90"
+                    style="background:#28A992;">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Modal: resetear contraseña de otro admin ───────────────────────────── -->
+<div id="modal-reset-pass" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     style="background:rgba(0,0,0,0.5);">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="font-bold text-gray-800">Resetear contraseña</h3>
+            <button onclick="cerrarModalResetPass()" class="text-gray-400 hover:text-gray-600">
+                <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+            </button>
+        </div>
+        <p class="text-xs text-gray-500 mb-4">Asigna una nueva contraseña a <strong id="reset-admin-nombre"></strong>. Comunícasela después.</p>
+        <div>
+            <label class="block text-xs font-semibold mb-1" style="color:#0C0B0C;">Nueva contraseña *</label>
+            <input id="rp-nueva" type="password" placeholder="Mínimo 6 caracteres"
+                   class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400">
+        </div>
+        <p id="msg-reset-pass" class="hidden text-xs text-center mt-3 font-medium text-red-600"></p>
+        <div class="flex gap-3 mt-5">
+            <button onclick="cerrarModalResetPass()"
+                    class="flex-1 py-2.5 border border-gray-200 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50">Cancelar</button>
+            <button onclick="confirmarResetPass()"
+                    class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white hover:opacity-90"
+                    style="background:#28A992;">Guardar nueva contraseña</button>
+        </div>
+    </div>
+</div>
+
+<script src="../js/db.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="../js/admin.js"></script>
+</body>
+</html>
