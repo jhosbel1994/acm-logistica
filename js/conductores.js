@@ -247,14 +247,24 @@ const registroForm = document.getElementById('registroForm');
 if (registroForm) {
     registroForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        const nombre   = (document.getElementById('inp-nombre')?.value   || '').trim();
-        const apellido = (document.getElementById('inp-apellido')?.value || '').trim();
-        const rut      = (document.getElementById('inp-rut')?.value      || '').trim();
-        const email    = (document.getElementById('inp-email')?.value    || '').trim();
-        const telefono = (document.getElementById('inp-tel')?.value      || '').trim();
+        const nombre    = (document.getElementById('inp-nombre')?.value   || '').trim();
+        const apellido  = (document.getElementById('inp-apellido')?.value || '').trim();
+        const rut       = (document.getElementById('inp-rut')?.value      || '').trim();
+        const email     = (document.getElementById('inp-email')?.value    || '').trim();
+        const telefono  = (document.getElementById('inp-tel')?.value      || '').trim();
+        const password  = (document.getElementById('inp-pass')?.value     || '');
+        const password2 = (document.getElementById('inp-pass2')?.value    || '');
 
-        if (!nombre || !apellido || !rut || !email || !telefono) {
+        if (!nombre || !apellido || !rut || !email || !telefono || !password) {
             showMsg('msg-registro', 'Completa todos los campos.');
+            return;
+        }
+        if (password.length < 6) {
+            showMsg('msg-registro', 'La contraseña debe tener al menos 6 caracteres.');
+            return;
+        }
+        if (password !== password2) {
+            showMsg('msg-registro', 'Las contraseñas no coinciden.');
             return;
         }
         if (!/^\d{7,8}-[\dkK]$/.test(rut)) {
@@ -268,7 +278,7 @@ if (registroForm) {
         if (findConductorByEmail(email)) { showMsg('msg-registro', 'Este correo ya está registrado.'); return; }
         if (findConductorByRUT(rut))     { showMsg('msg-registro', 'Este RUT ya está registrado.'); return; }
 
-        const passwordHash = await hashPassword('2026-05');
+        const passwordHash = await hashPassword(password);
         const conductor = { nombre, apellido, rut, email, telefono, passwordHash, fechaRegistro: new Date().toISOString() };
         const db = getConductores();
         db.push(conductor);
