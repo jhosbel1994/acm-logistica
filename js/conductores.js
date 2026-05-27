@@ -323,6 +323,17 @@ if (infoNombre) {
     }
 }
 
+// ── Toggle visibilidad de contraseña en registro ──────────────────────────
+
+function togglePassReg(inputId, iconId) {
+    const inp  = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (!inp) return;
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    if (icon) icon.textContent = show ? 'visibility_off' : 'visibility';
+}
+
 // ── Logout ────────────────────────────────────────────────────────────────
 
 function logout() {

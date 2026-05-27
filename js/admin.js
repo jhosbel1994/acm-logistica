@@ -2,10 +2,11 @@
 // ACM Logística · Panel Administrativo
 // Requiere: db.js cargado antes que este archivo.
 //
-// Cuentas iniciales (se crean al primer arranque y se hashean automáticamente):
-//   Dueño      → dueno@serviciosbop.cl      / Dueno2025*
-//   Encargado1 → encargado1@serviciosbop.cl / Encarg2025*
-//   Encargado2 → encargado2@serviciosbop.cl / Encarg2025*
+// Cuentas (se crean/migran automáticamente al primer arranque):
+//   Dueño        → alexis@serviciosbop.cl      / Alexis2026.
+//   Programador  → birth@serviciosbop.cl        / Birth2026.   (no puede ser borrado)
+//   Encargado 1  → encargado1@serviciosbop.cl  / Encarg2025*
+//   Encargado 2  → encargado2@serviciosbop.cl  / Encarg2025*
 // ──────────────────────────────────────────────────────────────────────────
 
 const DOMINIO            = '@serviciosbop.cl';
@@ -29,12 +30,11 @@ async function initAdminsDB() {
         await migrateAdminPasswords();
         return;
     }
-    // Crear cuentas iniciales con hash desde el primer arranque
     const defaults = [
-        { nombre: 'Dueño',       email: 'dueno@serviciosbop.cl',      plainPassword: 'Dueno2025*',  rol: 'dueño'     },
-        { nombre: 'Encargado 1', email: 'encargado1@serviciosbop.cl', plainPassword: 'Encarg2025*', rol: 'encargado' },
-        { nombre: 'Encargado 2', email: 'encargado2@serviciosbop.cl', plainPassword: 'Encarg2025*', rol: 'encargado' },
-        { nombre: 'Birth',       email: 'birth@serviciosbop.cl',      plainPassword: 'Birth2025',   rol: 'dueño'     },
+        { nombre: 'Alexis',      email: 'alexis@serviciosbop.cl',     plainPassword: 'Alexis2026.', rol: 'dueño'       },
+        { nombre: 'Birth',       email: 'birth@serviciosbop.cl',      plainPassword: 'Birth2026.',  rol: 'programador' },
+        { nombre: 'Encargado 1', email: 'encargado1@serviciosbop.cl', plainPassword: 'Encarg2025*', rol: 'encargado'   },
+        { nombre: 'Encargado 2', email: 'encargado2@serviciosbop.cl', plainPassword: 'Encarg2025*', rol: 'encargado'   },
     ];
     const hashed = await Promise.all(defaults.map(async d => ({
         nombre:        d.nombre,
@@ -46,10 +46,12 @@ async function initAdminsDB() {
     saveAdminsDB(hashed);
 }
 
-// Migra contraseñas antiguas en texto plano → hash
+// Migra contraseñas antiguas + actualiza cuentas a la versión actual
 async function migrateAdminPasswords() {
-    const db = getAdminsDB();
+    let db = getAdminsDB();
     let changed = false;
+
+    // Migrar texto plano → hash
     for (const admin of db) {
         if (admin.password && !isHashed(admin.password)) {
             admin.passwordHash = await hashPassword(admin.password);
@@ -57,6 +59,28 @@ async function migrateAdminPasswords() {
             changed = true;
         }
     }
+
+    // Reemplazar dueno@serviciosbop.cl → alexis@serviciosbop.cl
+    const duenoIdx = db.findIndex(a => a.email === 'dueno@serviciosbop.cl');
+    if (duenoIdx >= 0) {
+        db[duenoIdx] = {
+            nombre: 'Alexis', email: 'alexis@serviciosbop.cl',
+            passwordHash: await hashPassword('Alexis2026.'),
+            rol: 'dueño', fechaCreacion: db[duenoIdx].fechaCreacion || new Date().toISOString(),
+        };
+        changed = true;
+    }
+
+    // Actualizar birth: nueva contraseña y rol programador
+    const birthIdx = db.findIndex(a => a.email === 'birth@serviciosbop.cl');
+    if (birthIdx >= 0) {
+        db[birthIdx].nombre       = 'Birth';
+        db[birthIdx].passwordHash = await hashPassword('Birth2026.');
+        db[birthIdx].rol          = 'programador';
+        delete db[birthIdx].password;
+        changed = true;
+    }
+
     if (changed) saveAdminsDB(db);
 }
 
@@ -85,7 +109,8 @@ function getAdminSession() {
     try { return JSON.parse(sessionStorage.getItem('acm_admin') || 'null'); }
     catch { return null; }
 }
-function esDueno()    { return getAdminSession()?.rol === 'dueño'; }
+function esDueno()    { const r = getAdminSession()?.rol; return r === 'dueño' || r === 'programador'; }
+const CUENTA_PROTEGIDA = 'birth@serviciosbop.cl';
 function adminLogout() { sessionStorage.removeItem('acm_admin'); window.location.href = './login.html'; }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -268,11 +293,15 @@ if (window.location.pathname.includes('dashboard.html')) {
         if (!tbody) return;
 
         tbody.innerHTML = admins.map(a => {
-            const esMio    = a.email === sesion.email;
-            const esDuenoA = a.rol === 'dueño';
-            const fecha    = a.fechaCreacion ? new Date(a.fechaCreacion).toLocaleDateString('es-CL') : '—';
+            const esMio        = a.email === sesion.email;
+            const esDuenoA     = a.rol === 'dueño';
+            const esProg       = a.rol === 'programador';
+            const esProtegido  = a.email === CUENTA_PROTEGIDA;
+            const fecha        = a.fechaCreacion ? new Date(a.fechaCreacion).toLocaleDateString('es-CL') : '—';
             const rolBadge = esDuenoA
                 ? '<span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#fef3c7;color:#92400e;">Dueño</span>'
+                : esProg
+                ? '<span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#ede9fe;color:#5b21b6;">Programador</span>'
                 : '<span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#e0f2fe;color:#0369a1;">Encargado</span>';
             const yoBadge = esMio ? '<span class="ml-1 text-xs text-gray-400">(Tú)</span>' : '';
             const emailSafe  = escapeHtml(a.email);
@@ -285,13 +314,13 @@ if (window.location.pathname.includes('dashboard.html')) {
                 <td class="px-5 py-3 text-gray-400 text-xs hidden md:table-cell">${escapeHtml(fecha)}</td>
                 <td class="px-5 py-3 text-center">
                     <div class="flex items-center justify-center gap-1">
-                        ${!esMio ? `
+                        ${!esMio && !esProtegido ? `
                         <button onclick="abrirModalResetPass(${JSON.stringify(a.email)},${JSON.stringify(a.nombre)})"
                                 title="Resetear contraseña"
                                 class="p-1.5 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-colors">
                             <span class="material-symbols-outlined" style="font-size:17px;">lock_reset</span>
                         </button>` : ''}
-                        ${!esDuenoA ? `
+                        ${!esDuenoA && !esProg && !esProtegido ? `
                         <button onclick="eliminarAdmin(${JSON.stringify(a.email)},${JSON.stringify(a.nombre)})"
                                 title="Eliminar administrador"
                                 class="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors">
